@@ -1,0 +1,516 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+model Tenant {
+  id                 String          @id
+  name               String
+  address            String
+  type               String
+  country            String
+  timezone           String
+  currency           String
+  plan               PlanTier
+  status             TenantStatus
+  features           Json
+  bankDetails        Json?
+  storageUsed        Float           @default(0)
+  ramUsage           Float           @default(0)
+  subscriptionId     String?
+  paymentPlanId      String?
+  nextPaymentDate    DateTime?
+  billingCycle       String?
+  isTrial            Boolean         @default(false)
+  autoRenew          Boolean         @default(true)
+  subscriptionStatus String?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  appointments       Appointment[]
+  logs               AuditLog[]
+  branches           Branch[]
+  budgets            Budget[]
+  chats              ChatMessage[]
+  clients            Client[]
+  consultations      Consultation[]
+  expenses           Expense[]
+  inventory          InventoryItem[]
+  invoices           Invoice[]
+  labRequests        LabRequest[]
+  patients           Patient[]
+  sales              Sale[]
+  services           Service[]
+  users              User[]
+  orders             Order[]
+}
+
+model Branch {
+  id            String          @id
+  tenantId      String
+  name          String
+  address       String
+  phone         String
+  active        Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  appointments  Appointment[]
+  logs          AuditLog[]
+  tenant        Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  budgets       Budget[]
+  clients       Client[]
+  consultations Consultation[]
+  expenses      Expense[]
+  inventory     InventoryItem[]
+  invoices      Invoice[]
+  labRequests   LabRequest[]
+  patients      Patient[]
+  sales         Sale[]
+  users         User[]
+  orders        Order[]
+}
+
+model User {
+  id                   String        @id
+  tenantId             String?
+  branchId             String?
+  clientId             String?
+  title                String
+  name                 String
+  email                String        @unique
+  password             String
+  role                 UserRole
+  active               Boolean       @default(true)
+  joinedDate           DateTime      @default(now())
+  phone                String?
+  assignedAppointments Appointment[]
+  branch               Branch?       @relation(fields: [branchId], references: [id])
+  tenant               Tenant?       @relation(fields: [tenantId], references: [id])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Client {
+  id            String        @id
+  tenantId      String
+  branchId      String?
+  title         String
+  name          String
+  email         String
+  phone         String
+  address       String
+  notes         String?
+  portalEnabled Boolean       @default(false)
+  balance       Float         @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  appointments  Appointment[]
+  chats         ChatMessage[]
+  branch        Branch?       @relation(fields: [branchId], references: [id])
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invoices      Invoice[]
+  patients      Patient[]
+}
+
+model Patient {
+  id                String         @id
+  tenantId          String
+  branchId          String?
+  ownerId           String
+  name              String
+  type              PatientType    @default(Single)
+  species           String
+  breed             String
+  sex               String
+  age               String
+  identificationTag String?
+  chipNumber        String?
+  status            PatientStatus  @default(Active)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  appointments      Appointment[]
+  attachments       Attachment[]
+  consultations     Consultation[]
+  labRequests       LabRequest[]
+  notes             MedicalNote[]
+  branch            Branch?        @relation(fields: [branchId], references: [id])
+  owner             Client         @relation(fields: [ownerId], references: [id])
+  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  reminders         Reminder[]
+}
+
+model MedicalNote {
+  id         String   @id
+  patientId  String
+  date       DateTime
+  author     String
+  content    String
+  isAddendum Boolean  @default(false)
+  patient    Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model Attachment {
+  id        String   @id
+  patientId String
+  type      String
+  title     String
+  date      DateTime
+  url       String?
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model Reminder {
+  id        String   @id
+  patientId String
+  type      String
+  title     String
+  dueDate   DateTime
+  completed Boolean  @default(false)
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+}
+
+model InventoryItem {
+  id               String           @id
+  tenantId         String
+  branchId         String
+  name             String
+  barcode          String?
+  regulatoryNumber String?
+  category         ProductCategory
+  unit             String
+  totalStock       Int
+  minLevel         Int
+  salesCount       Int              @default(0)
+  visibleToClient  Boolean          @default(false)
+  clientPrice      Float?
+  image            String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  batches          InventoryBatch[]
+  branch           Branch           @relation(fields: [branchId], references: [id])
+  tenant           Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model InventoryBatch {
+  id             String        @id
+  itemId         String
+  batchNumber    String
+  expiryDate     DateTime
+  quantity       Int
+  purchasePrice  Float
+  wholesalePrice Float?
+  unitPrice      Float
+  item           InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Service {
+  id              String          @id
+  tenantId        String
+  name            String
+  category        ServiceCategory
+  description     String?
+  costInternal    Float
+  priceClient     Float
+  profit          Float
+  visibleToClient Boolean         @default(true)
+  isActive        Boolean         @default(true)
+  usageCount      Int             @default(0)
+  tenant          Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Appointment {
+  id               String            @id
+  tenantId         String
+  branchId         String?
+  clientId         String?
+  patientId        String?
+  assignedStaffId  String?
+  
+  clientName       String // Snapshot
+  patientName      String // Snapshot
+  assignedStaffName String // Snapshot
+  
+  date             DateTime
+  visitType        String
+  status           AppointmentStatus
+  reminderChannels String[]          // Stored as text array in Postgres
+  walkInDetails    String?
+  
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  tenant           Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  branch           Branch?           @relation(fields: [branchId], references: [id])
+  client           Client?           @relation(fields: [clientId], references: [id])
+  patient          Patient?          @relation(fields: [patientId], references: [id])
+  staff            User?             @relation(fields: [assignedStaffId], references: [id])
+}
+
+model Consultation {
+  id                    String   @id
+  tenantId              String
+  branchId              String
+  patientId             String
+  invoiceId             String?
+  patientName           String
+  date                  DateTime
+  vetId                 String
+  vetName               String
+  subjective            String
+  objective             String
+  assessment            String
+  plan                  String
+  vitals                Json?
+  aiDiagnosisSuggestion String?
+  services              Json
+  status                String?
+  nextVisitDate         String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  branch                Branch   @relation(fields: [branchId], references: [id])
+  patient               Patient  @relation(fields: [patientId], references: [id])
+  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model LabRequest {
+  id                   String      @id
+  tenantId             String
+  branchId             String
+  patientId            String
+  patientName          String
+  testName             String
+  priority             LabPriority
+  requestDate          DateTime
+  notes                String
+  status               LabStatus
+  resultFindings       String?
+  resultInterpretation String?
+  resultDate           DateTime?
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+  branch               Branch      @relation(fields: [branchId], references: [id])
+  patient              Patient?    @relation(fields: [patientId], references: [id])
+  tenant               Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Invoice {
+  id               String        @id
+  tenantId         String
+  branchId         String
+  clientId         String?
+  patientId        String?
+  patientName      String
+  date             DateTime
+  items            Json
+  total            Float
+  status           InvoiceStatus
+  adjustmentReason String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  branch           Branch        @relation(fields: [branchId], references: [id])
+  client           Client?       @relation(fields: [clientId], references: [id])
+  tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id              String   @id
+  tenantId        String
+  branchId        String
+  clientId        String
+  clientName      String
+  items           Json
+  total           Float
+  status          String
+  date            DateTime
+  shippingAddress String?
+  phoneNumber     String?
+  paymentMethod   String?
+  deliveryFee     Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  branch          Branch   @relation(fields: [branchId], references: [id])
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Sale {
+  id            String        @id
+  tenantId      String
+  branchId      String
+  clientId      String?
+  clientName    String
+  date          DateTime
+  items         Json
+  subtotal      Float
+  tax           Float
+  total         Float
+  paymentMethod PaymentMethod
+  status        String
+  createdAt     DateTime      @default(now())
+  branch        Branch        @relation(fields: [branchId], references: [id])
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Expense {
+  id          String          @id
+  tenantId    String
+  branchId    String
+  category    ExpenseCategory
+  description String
+  amount      Float
+  date        DateTime
+  paidBy      String
+  createdAt   DateTime        @default(now())
+  branch      Branch          @relation(fields: [branchId], references: [id])
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Budget {
+  id           String          @id
+  tenantId     String
+  branchId     String?
+  category     ExpenseCategory
+  monthlyLimit Float
+  branch       Branch?         @relation(fields: [branchId], references: [id])
+  tenant       Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id
+  tenantId  String
+  branchId  String?
+  timestamp DateTime
+  userId    String
+  userName  String
+  action    String
+  details   String
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model ChatMessage {
+  id         String     @id
+  tenantId   String
+  clientId   String
+  sender     SenderType
+  senderName String
+  content    String
+  timestamp  DateTime   @default(now())
+  isRead     Boolean    @default(false)
+  readAt     DateTime?
+  client     Client     @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tenant     Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  PARENT_ADMIN
+  ADMIN
+  VET
+  NURSE
+  RECEPTION
+  PET_OWNER
+}
+
+enum PlanTier {
+  STARTER
+  STANDARD
+  PREMIUM
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum PatientType {
+  Single
+  Herd
+}
+
+enum PatientStatus {
+  Active
+  Archived
+  Deceased
+}
+
+enum AppointmentStatus {
+  Pending
+  Scheduled
+  Completed
+  Cancelled
+  Missed
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PAID
+  ADJUSTED
+  REFUNDED
+  VOIDED
+  OVERDUE
+}
+
+enum PaymentMethod {
+  CARD
+  TRANSFER
+  ONLINE
+  CASH
+  CREDIT
+}
+
+enum ServiceCategory {
+  Treatment
+  Prophylaxis
+  Surgery
+  Diagnostics
+  Consultation
+  Laboratory
+  Grooming
+  Boarding
+  Other
+}
+
+enum ProductCategory {
+  Food
+  Drugs
+  Pet_Products @map("Pet Products")
+  Equipment
+  Consumables
+  Other
+}
+
+enum LabPriority {
+  ROUTINE
+  URGENT
+  STAT
+}
+
+enum LabStatus {
+  REQUESTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum ExpenseCategory {
+  Supplies
+  Salaries
+  Rent
+  Utilities
+  Equipment
+  Marketing
+  Other
+}
+
+enum SenderType {
+  CLIENT
+  CLINIC
+}

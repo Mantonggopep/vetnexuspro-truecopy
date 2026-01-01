@@ -6,7 +6,7 @@ export interface Document {
     [key: string]: any;
 }
 
-const API_URL = 'http://localhost:4001/api';
+const API_URL = '/api';
 
 interface IBackend {
     getCollection(collectionName: string): Promise<Document[]>;

@@ -27,5 +27,9 @@ export function errorHandler(error: any, request: FastifyRequest, reply: Fastify
   } catch (err) {
     console.error('Failed to write to log file', err);
   }
-  return reply.status(500).send({ message: "Internal Server Error", error: error.message });
+  return reply.status(500).send({
+    message: "Internal Server Error",
+    error: error.message,
+    stack: error.stack
+  });
 }

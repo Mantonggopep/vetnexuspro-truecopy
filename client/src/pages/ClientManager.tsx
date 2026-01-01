@@ -305,7 +305,7 @@ export const ClientManager: React.FC<Props> = ({ state, dispatch, initialClientI
                     <div className="relative">
                         <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
                         <input
-                            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+                            className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 neo-input"
                             placeholder="Search clients..."
                             value={searchTerm}
                             onChange={e => setSearchTerm(e.target.value)}
@@ -366,11 +366,11 @@ export const ClientManager: React.FC<Props> = ({ state, dispatch, initialClientI
                         <h2 className="text-2xl font-bold text-slate-800 mb-2">{selectedClient ? 'Edit Client' : 'Add New Client'}</h2>
                         <p className="text-sm text-slate-500 mb-6">Registering to branch: <strong>{currentBranch?.name}</strong></p>
 
-                        <div className="grid grid-cols-4 gap-6">
+                        <div className="grid grid-cols-4 gap-4">
                             <div className="col-span-1">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Title</label>
                                 <select
-                                    className="w-full p-2 border rounded-lg bg-white"
+                                    className="w-full p-2.5 neo-input bg-white font-semibold text-slate-700"
                                     value={formData.title}
                                     onChange={e => setFormData({ ...formData, title: e.target.value })}
                                 >
@@ -378,24 +378,24 @@ export const ClientManager: React.FC<Props> = ({ state, dispatch, initialClientI
                                 </select>
                             </div>
                             <div className="col-span-3">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                                <input className="w-full p-2 border rounded-lg" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Full Name</label>
+                                <input className="w-full p-2.5 neo-input font-semibold text-slate-800" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="John Doe" />
                             </div>
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                                <input className="w-full p-2 border rounded-lg" value={formData.email || ''} onChange={e => setFormData({ ...formData, email: e.target.value })} />
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Email</label>
+                                <input className="w-full p-2.5 neo-input font-semibold text-slate-800" value={formData.email || ''} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="john@example.com" />
                             </div>
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
-                                <input className="w-full p-2 border rounded-lg" value={formData.phone || ''} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Phone</label>
+                                <input className="w-full p-2.5 neo-input font-semibold text-slate-800" value={formData.phone || ''} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="+1..." />
                             </div>
                             <div className="col-span-4">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Address</label>
-                                <input className="w-full p-2 border rounded-lg" value={formData.address || ''} onChange={e => setFormData({ ...formData, address: e.target.value })} />
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Address</label>
+                                <input className="w-full p-2.5 neo-input font-semibold text-slate-800" value={formData.address || ''} onChange={e => setFormData({ ...formData, address: e.target.value })} placeholder="Street, City..." />
                             </div>
                             <div className="col-span-4">
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Notes</label>
-                                <textarea className="w-full p-2 border rounded-lg" rows={3} value={formData.notes || ''} onChange={e => setFormData({ ...formData, notes: e.target.value })} />
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Notes</label>
+                                <textarea className="w-full p-2.5 neo-input font-medium text-slate-700" rows={2} value={formData.notes || ''} onChange={e => setFormData({ ...formData, notes: e.target.value })} placeholder="Optional client notes..." />
                             </div>
                             <div className="col-span-4 flex items-center gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
                                 <input type="checkbox" id="portal" checked={formData.portalEnabled || false} onChange={e => setFormData({ ...formData, portalEnabled: e.target.checked })} className="w-4 h-4 text-teal-600 rounded" />
@@ -406,8 +406,8 @@ export const ClientManager: React.FC<Props> = ({ state, dispatch, initialClientI
                             </div>
                         </div>
                         <div className="mt-8 flex gap-4">
-                            <button onClick={handleSaveClient} className="px-6 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 font-bold">Save Client</button>
-                            <button onClick={() => setShowForm(false)} className="px-6 py-2 text-slate-500 hover:bg-slate-50 rounded-lg font-medium">Cancel</button>
+                            <button onClick={handleSaveClient} className="px-10 py-3 bg-slate-800 text-white rounded-2xl hover:bg-slate-900 font-bold shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider">Save Client</button>
+                            <button onClick={() => setShowForm(false)} className="px-6 py-3 text-slate-400 hover:text-slate-600 rounded-2xl font-bold text-xs uppercase tracking-widest transition-colors">Cancel</button>
                         </div>
                     </div>
                 ) : selectedClient ? (

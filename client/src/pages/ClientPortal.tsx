@@ -782,15 +782,15 @@ export const ClientPortal: React.FC<Props> = ({ state, user, onLogout, onSendMes
                                                 <div className="grid grid-cols-2 gap-6">
                                                     <div className="col-span-2">
                                                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Full Name</label>
-                                                        <input className="w-full p-5 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] font-black text-slate-800 focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all" value={address.name} onChange={e => setAddress({ ...address, name: e.target.value })} />
+                                                        <input className="w-full p-5 bg-white border border-slate-100 rounded-[1.5rem] font-black text-slate-800 focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all" value={address.name} onChange={e => setAddress({ ...address, name: e.target.value })} />
                                                     </div>
                                                     <div>
                                                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Phone Number</label>
-                                                        <input className="w-full p-5 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] font-black text-slate-800 focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-200" value={address.phone} onChange={e => setAddress({ ...address, phone: e.target.value })} placeholder="080 123 4567" />
+                                                        <input className="w-full p-5 bg-white border border-slate-100 rounded-[1.5rem] font-black text-slate-800 focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-200" value={address.phone} onChange={e => setAddress({ ...address, phone: e.target.value })} placeholder="080 123 4567" />
                                                     </div>
                                                     <div>
                                                         <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">City</label>
-                                                        <input className="w-full p-5 bg-slate-50/50 border border-slate-100 rounded-[1.5rem] font-black text-slate-800 focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-200" value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })} placeholder="Lagos" />
+                                                        <input className="w-full p-5 bg-white border border-slate-100 rounded-[1.5rem] font-black text-slate-800 focus:ring-4 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-200" value={address.city} onChange={e => setAddress({ ...address, city: e.target.value })} placeholder="Lagos" />
                                                     </div>
                                                     <div className="col-span-2">
                                                         <div className="flex justify-between items-center mb-2 ml-1">

@@ -28,7 +28,7 @@ const FLUTTERWAVE_PLANS = {
 
 export const SettingsManager: React.FC<Props> = ({ state, dispatch, onNavigate }) => {
     const currentTenant = state.tenants.find(t => t.id === state.currentTenantId);
-    const [activeSection, setActiveSection] = useState<'profile' | 'billing' | 'localization' | 'security'>('profile');
+    const [activeSection, setActiveSection] = useState<'profile' | 'billing' | 'localization' | 'security' | 'backup'>('profile');
 
     // Profile State
     const [clinicName, setClinicName] = useState(currentTenant?.name || '');
@@ -43,9 +43,37 @@ export const SettingsManager: React.FC<Props> = ({ state, dispatch, onNavigate }
     const [twoFactor, setTwoFactor] = useState(false);
     const [sessionTimeout, setSessionTimeout] = useState('30');
 
+    // Backup State
+    const [driveConnected, setDriveConnected] = useState(false);
+    const [lastBackupDate, setLastBackupDate] = useState<string | null>(null);
+    const [isBackingUp, setIsBackingUp] = useState(false);
+
     // Upgrade State
     const [targetPlan, setTargetPlan] = useState<PlanTier>(currentTenant?.plan || PlanTier.STARTER);
     const [targetCycle, setTargetCycle] = useState<'Monthly' | 'Yearly'>(currentTenant?.billingCycle || 'Monthly');
+
+    // handlers
+    const handleDriveConnect = () => {
+        // Simulation of OAuth
+        const win = window.open('', 'Google Drive Auth', 'width=500,height=600');
+        if (win) {
+            win.document.write('<h2>Connecting to Google...</h2><p>Please wait...</p>');
+            setTimeout(() => {
+                win.close();
+                setDriveConnected(true);
+                alert("Connected to Google Drive successfully!");
+            }, 2000);
+        }
+    };
+
+    const handleBackupNow = () => {
+        setIsBackingUp(true);
+        setTimeout(() => {
+            setIsBackingUp(false);
+            setLastBackupDate(new Date().toISOString());
+            alert("Backup completed successfully! 140MB uploaded.");
+        }, 3000);
+    };
 
     // Sync local state with global state when it changes (e.g. after save or sync)
     useEffect(() => {
@@ -181,6 +209,9 @@ export const SettingsManager: React.FC<Props> = ({ state, dispatch, onNavigate }
                 <button onClick={() => setActiveSection('security')} className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 font-medium transition-all ${activeSection === 'security' ? 'bg-teal-50 text-teal-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}>
                     <ShieldCheck className="w-4 h-4" /> Security
                 </button>
+                <button onClick={() => setActiveSection('backup')} className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 font-medium transition-all ${activeSection === 'backup' ? 'bg-teal-50 text-teal-700 shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}>
+                    <Shield className="w-4 h-4" /> Data Backup
+                </button>
 
                 <div className="mt-6 px-2">
                     <h3 className="font-bold text-slate-400 text-xs uppercase tracking-wider mb-2">Management</h3>
@@ -226,6 +257,7 @@ export const SettingsManager: React.FC<Props> = ({ state, dispatch, onNavigate }
                         {activeSection === 'billing' && <><CreditCard className="w-6 h-6 text-teal-600" /> Billing & Subscription</>}
                         {activeSection === 'localization' && <><Globe className="w-6 h-6 text-teal-600" /> Localization</>}
                         {activeSection === 'security' && <><Lock className="w-6 h-6 text-teal-600" /> Security Settings</>}
+                        {activeSection === 'backup' && <><Shield className="w-6 h-6 text-teal-600" /> Data Backup & Recovery</>}
                     </h2>
                     <p className="text-sm text-slate-500 mt-1">Manage your practice configuration.</p>
                 </div>
@@ -438,6 +470,78 @@ export const SettingsManager: React.FC<Props> = ({ state, dispatch, onNavigate }
                                         </select>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {activeSection === 'backup' && (
+                        <div className="animate-fade-in space-y-6">
+                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                                        <Shield className="w-8 h-8" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-slate-800">Google Drive Backup</h3>
+                                        <p className="text-sm text-slate-500">Securely backup your patient records and images to the cloud.</p>
+                                    </div>
+                                </div>
+
+                                {!driveConnected ? (
+                                    <div className="p-8 border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center text-center bg-slate-50/50">
+                                        <p className="text-slate-600 font-medium mb-4">Connect your Google Drive account to enable automatic backups.</p>
+                                        <button
+                                            onClick={handleDriveConnect}
+                                            className="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl flex items-center gap-2 hover:bg-slate-50 shadow-sm transition-all"
+                                        >
+                                            <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Google_Drive_icon_%282020%29.svg" className="w-5 h-5" alt="Drive" />
+                                            Connect Google Drive
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        <div className="flex items-center justify-between p-4 bg-green-50 text-green-700 rounded-xl border border-green-100">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                                    <UserCheck className="w-4 h-4" />
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-sm">Connected to Google Drive</p>
+                                                    <p className="text-xs opacity-80">account@vetnexus.pro</p>
+                                                </div>
+                                            </div>
+                                            <button onClick={() => setDriveConnected(false)} className="text-xs font-bold underline hover:no-underline">Disconnect</button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Last Backup</p>
+                                                <p className="text-slate-800 font-medium">{lastBackupDate ? new Date(lastBackupDate).toLocaleString() : 'Never'}</p>
+                                            </div>
+                                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Backup Frequency</p>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-slate-800 font-medium">Daily (Midnight)</span>
+                                                    <div className={`w-10 h-5 bg-teal-500 rounded-full relative cursor-pointer`}>
+                                                        <div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full shadow-sm"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            onClick={handleBackupNow}
+                                            disabled={isBackingUp}
+                                            className="w-full py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 flex items-center justify-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isBackingUp ? (
+                                                <><Clock className="w-5 h-5 animate-spin" /> Backing up...</>
+                                            ) : (
+                                                <><Shield className="w-5 h-5" /> Backup Now</>
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}

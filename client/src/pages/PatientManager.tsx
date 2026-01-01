@@ -153,7 +153,7 @@ export const PatientManager: React.FC<Props> = ({ state, dispatch }) => {
             <input
               type="text"
               placeholder="Search name, herd ID, tag..."
-              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 neo-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -420,19 +420,20 @@ export const PatientManager: React.FC<Props> = ({ state, dispatch }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">{formData.type === 'Herd' ? 'Herd Name / ID' : 'Patient Name'} *</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">{formData.type === 'Herd' ? 'Herd Name / ID' : 'Patient Name'} *</label>
                 <input
                   type="text"
-                  className="w-full p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                  className="w-full p-2.5 neo-input font-bold text-slate-800"
                   value={formData.name || ''}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g. Bella"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Owner *</label>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Owner *</label>
                 <select
-                  className="w-full p-2 border border-slate-200 rounded-lg bg-white"
+                  className="w-full p-2.5 neo-input bg-white font-semibold text-slate-700"
                   value={formData.ownerId || ''}
                   onChange={e => setFormData({ ...formData, ownerId: e.target.value })}
                 >
@@ -445,29 +446,29 @@ export const PatientManager: React.FC<Props> = ({ state, dispatch }) => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Species</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Species</label>
                   <input
                     type="text"
-                    placeholder={formData.type === 'Herd' ? 'e.g. Sheep, Goat' : 'e.g. Canine'}
-                    className="w-full p-2 border border-slate-200 rounded-lg"
+                    placeholder={formData.type === 'Herd' ? 'e.g. Sheep' : 'e.g. Canine'}
+                    className="w-full p-2.5 neo-input font-semibold text-slate-700"
                     value={formData.species || ''}
                     onChange={e => setFormData({ ...formData, species: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Breed</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Breed</label>
                   <input
                     type="text"
-                    placeholder="e.g. Merino"
-                    className="w-full p-2 border border-slate-200 rounded-lg"
+                    placeholder="e.g. Golden"
+                    className="w-full p-2.5 neo-input font-semibold text-slate-700"
                     value={formData.breed || ''}
                     onChange={e => setFormData({ ...formData, breed: e.target.value })}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Sex</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Sex</label>
                   <select
-                    className="w-full p-2 border border-slate-200 rounded-lg bg-white"
+                    className="w-full p-2.5 neo-input bg-white font-semibold text-slate-700"
                     value={formData.sex || ''}
                     onChange={e => setFormData({ ...formData, sex: e.target.value })}
                   >
@@ -480,11 +481,11 @@ export const PatientManager: React.FC<Props> = ({ state, dispatch }) => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Age</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Age</label>
                   <input
                     type="text"
-                    placeholder={formData.type === 'Herd' ? 'e.g. Mixed, Weaners' : 'e.g. 5 yrs'}
-                    className="w-full p-2 border border-slate-200 rounded-lg"
+                    placeholder={formData.type === 'Herd' ? 'e.g. Mixed' : 'e.g. 5 yrs'}
+                    className="w-full p-2.5 neo-input font-semibold text-slate-700"
                     value={formData.age || ''}
                     onChange={e => setFormData({ ...formData, age: e.target.value })}
                   />
@@ -493,19 +494,20 @@ export const PatientManager: React.FC<Props> = ({ state, dispatch }) => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Identification Tag</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Identification Tag</label>
                   <input
                     type="text"
-                    className="w-full p-2 border border-slate-200 rounded-lg"
+                    className="w-full p-2.5 neo-input font-mono font-bold text-slate-800"
                     value={formData.identificationTag || ''}
                     onChange={e => setFormData({ ...formData, identificationTag: e.target.value })}
+                    placeholder="TAG-001"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Chip Number (Optional)</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Chip Number</label>
                   <input
                     type="text"
-                    className="w-full p-2 border border-slate-200 rounded-lg"
+                    className="w-full p-2.5 neo-input font-mono font-bold text-slate-800"
                     value={formData.chipNumber || ''}
                     onChange={e => setFormData({ ...formData, chipNumber: e.target.value })}
                     placeholder="Microchip #"
@@ -515,9 +517,9 @@ export const PatientManager: React.FC<Props> = ({ state, dispatch }) => {
 
             </div>
 
-            <div className="mt-8 flex justify-end gap-3 border-t border-slate-100 pt-4">
-              <button onClick={() => setShowAddForm(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg">Cancel</button>
-              <button onClick={handleSavePatient} className="px-6 py-2 bg-teal-600 text-white rounded-lg font-bold hover:bg-teal-700">Save Record</button>
+            <div className="mt-8 flex justify-end gap-3 border-t border-slate-100 pt-6">
+              <button onClick={() => setShowAddForm(false)} className="px-5 py-2.5 text-slate-400 hover:text-slate-600 rounded-xl font-bold transition-colors text-xs uppercase tracking-widest">Cancel</button>
+              <button onClick={handleSavePatient} className="px-10 py-3 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-900 shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider">Save Record</button>
             </div>
           </div>
         </div>

@@ -1,0 +1,13 @@
+node_modules
+dist
+.env
+.git
+.gitignore
+*.log
+docker-compose.yml
+Dockerfile
+README.md
+client/node_modules
+client/dist
+server/node_modules
+server/dist

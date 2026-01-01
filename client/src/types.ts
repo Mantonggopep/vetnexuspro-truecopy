@@ -170,6 +170,8 @@ export interface InventoryItem {
   salesCount?: number;
   visibleToClient?: boolean;
   clientPrice?: number;
+  wholesalePrice?: number;
+  purchasePrice?: number;
   image?: string;
 }
 

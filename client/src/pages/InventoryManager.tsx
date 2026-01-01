@@ -177,6 +177,8 @@ export const InventoryManager: React.FC<Props> = ({ state, dispatch }) => {
             branchId: state.currentBranchId,
             visibleToClient: formData.visibleToClient || false,
             clientPrice: Number(formData.clientPrice) || Number(batchData.unitPrice),
+            wholesalePrice: Number(formData.wholesalePrice) || Number(batchData.wholesalePrice) || 0,
+            purchasePrice: Number(formData.purchasePrice) || Number(batchData.purchasePrice) || 0,
             salesCount: 0,
             image: formData.image
         };
@@ -202,6 +204,8 @@ export const InventoryManager: React.FC<Props> = ({ state, dispatch }) => {
             regulatoryNumber: toTitleCase(formData.regulatoryNumber || ''),
             visibleToClient: formData.visibleToClient,
             clientPrice: Number(formData.clientPrice),
+            wholesalePrice: Number(formData.wholesalePrice),
+            purchasePrice: Number(formData.purchasePrice),
             image: formData.image
         };
 
@@ -393,16 +397,16 @@ export const InventoryManager: React.FC<Props> = ({ state, dispatch }) => {
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
                         <h2 className="text-xl font-bold mb-4">Add Stock</h2>
-                        <div className="space-y-4">
-                            <div><label className="block text-xs font-bold text-slate-500 mb-1">Quantity</label><input type="number" className="w-full p-2 border rounded" placeholder="Qty" value={restockQty} onChange={e => setRestockQty(Number(e.target.value))} /></div>
-                            <div><label className="block text-xs font-bold text-slate-500 mb-1">Batch Number</label><input className="w-full p-2 border rounded" placeholder="Optional" value={restockBatch} onChange={e => setRestockBatch(e.target.value)} /></div>
-                            <div><label className="block text-xs font-bold text-slate-500 mb-1">Expiry Date</label><input type="date" className="w-full p-2 border rounded" value={restockExpiry} onChange={e => setRestockExpiry(e.target.value)} /></div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-xs font-bold text-slate-500 mb-1">Cost Price</label><input type="number" className="w-full p-2 border rounded" value={restockCost} onChange={e => setRestockCost(Number(e.target.value))} /></div>
-                                <div><label className="block text-xs font-bold text-slate-500 mb-1">Selling Price</label><input type="number" className="w-full p-2 border rounded" value={restockPrice} onChange={e => setRestockPrice(Number(e.target.value))} /></div>
+                        <div className="space-y-3">
+                            <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Quantity</label><input type="number" className="neo-input w-full p-2.5" placeholder="Qty" value={restockQty} onChange={e => setRestockQty(Number(e.target.value))} /></div>
+                            <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Batch Number</label><input className="neo-input w-full p-2.5" placeholder="Optional" value={restockBatch} onChange={e => setRestockBatch(e.target.value)} /></div>
+                            <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Expiry Date</label><input type="date" className="neo-input w-full p-2.5" value={restockExpiry} onChange={e => setRestockExpiry(e.target.value)} /></div>
+                            <div className="grid grid-cols-2 gap-3">
+                                <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Cost Price</label><input type="number" className="neo-input w-full p-2.5" value={restockCost} onChange={e => setRestockCost(Number(e.target.value))} /></div>
+                                <div><label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-2">Selling Price</label><input type="number" className="neo-input w-full p-2.5" value={restockPrice} onChange={e => setRestockPrice(Number(e.target.value))} /></div>
                             </div>
-                            <button onClick={handleAddStock} className="w-full py-2 bg-green-600 text-white rounded font-bold">Confirm</button>
-                            <button onClick={() => setShowRestockModal(false)} className="w-full py-2 text-slate-500">Cancel</button>
+                            <button onClick={handleAddStock} className="w-full py-3 bg-slate-800 text-white rounded-xl font-bold mt-2 shadow-lg hover:shadow-xl transition-all">Confirm Stock</button>
+                            <button onClick={() => setShowRestockModal(false)} className="w-full py-2 text-slate-400 hover:text-slate-600 text-xs font-bold uppercase tracking-widest">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -410,72 +414,84 @@ export const InventoryManager: React.FC<Props> = ({ state, dispatch }) => {
 
             {/* Add/Edit Modal */}
             {(showAddForm || showEditForm) && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 animate-fade-in max-h-[90vh] overflow-y-auto">
-                        <h2 className="text-xl font-bold text-slate-800 mb-6">{showEditForm ? 'Edit Item Details' : 'Add New Inventory Item'}</h2>
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                    <div className="bg-neo rounded-2xl shadow-2xl w-full max-w-lg p-8 animate-scale-in max-h-[90vh] overflow-y-auto custom-scrollbar border border-white/50">
+                        <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                            {showEditForm ? <Edit2 className="w-6 h-6 text-indigo-600" /> : <Plus className="w-6 h-6 text-teal-600" />}
+                            {showEditForm ? 'Edit Item Details' : 'Add New Inventory Item'}
+                        </h2>
                         <div className="space-y-4">
-                            {!showEditForm && !showCamera && <button onClick={startCamera} className="w-full py-3 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200 font-bold flex items-center justify-center gap-2 hover:bg-indigo-100"><Camera className="w-5 h-5" /> Scan Product Label</button>}
-                            {showCamera && <div className="relative rounded-lg overflow-hidden h-48 bg-black"><video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" /><button onClick={captureImage} className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-full p-3 shadow-lg"><Camera className="w-6 h-6 text-teal-600" /></button></div>}
-
-                            <div><label className="block text-sm font-medium text-slate-700 mb-1">Product Name</label><input className="w-full p-2 border border-slate-200 rounded-lg" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Amoxicillin 250mg" /></div>
+                            {!showEditForm && !showCamera &&
+                                <button onClick={startCamera} className="w-full py-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100 font-bold flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors neo-btn shadow-sm">
+                                    <Camera className="w-4 h-4" /> Scan Product Label
+                                </button>
+                            }
+                            {showCamera && <div className="relative rounded-xl overflow-hidden h-40 bg-black shadow-inner border-2 border-slate-200"><video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" /><button onClick={captureImage} className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white rounded-full p-4 shadow-xl hover:scale-105 transition-transform"><Camera className="w-6 h-6 text-teal-600" /></button></div>}
 
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Product Image (Max 3MB)</label>
+                                <label className="block text-[10px] font-bold text-slate-500 mb-1.5 uppercase tracking-widest ml-2">Product Name</label>
+                                <input className="w-full p-3 text-slate-800 font-semibold focus:ring-2 focus:ring-teal-500/20 placeholder-slate-300 neo-input" value={formData.name || ''} onChange={e => setFormData({ ...formData, name: e.target.value })} placeholder="e.g. Amoxicillin 250mg" />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-slate-600 mb-2 uppercase tracking-wide">Product Image (Max 3MB)</label>
                                 <div className="flex items-center gap-4">
-                                    <div className="w-20 h-20 rounded-xl bg-slate-50 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden relative group">
+                                    <div className="w-24 h-24 rounded-2xl bg-white border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden relative group neo-input">
                                         {formData.image ? (
                                             <>
                                                 <img src={formData.image} className="w-full h-full object-cover" />
                                                 <button onClick={() => setFormData({ ...formData, image: undefined })} className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
-                                                    <Trash2 className="w-5 h-5" />
+                                                    <Trash2 className="w-6 h-6" />
                                                 </button>
                                             </>
                                         ) : (
                                             <Image className="w-8 h-8 text-slate-300" />
                                         )}
                                     </div>
-                                    <input type="file" accept="image/*" onChange={handleImageUpload} className="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer" />
+                                    <label className="cursor-pointer bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm hover:bg-slate-50 text-sm font-bold text-slate-600 neo-btn">
+                                        Upload Image
+                                        <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                                    </label>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-sm font-medium text-slate-700 mb-1">Category</label><select className="w-full p-2 border border-slate-200 rounded-lg bg-white" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value as ProductCategory })}><option value="Drugs">Drugs</option><option value="Food">Food</option><option value="Consumables">Consumables</option><option value="Equipment">Equipment</option><option value="Other">Other</option></select></div>
-                                <div><label className="block text-sm font-medium text-slate-700 mb-1">Unit</label><input className="w-full p-2 border border-slate-200 rounded-lg" value={formData.unit || ''} onChange={e => setFormData({ ...formData, unit: e.target.value })} placeholder="e.g. Bottle" /></div>
+                                <div><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-widest ml-2">Category</label><select className="w-full p-3 text-slate-700 font-semibold neo-input bg-white" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value as ProductCategory })}><option value="Drugs">Drugs</option><option value="Food">Food</option><option value="Consumables">Consumables</option><option value="Equipment">Equipment</option><option value="Other">Other</option></select></div>
+                                <div><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-widest ml-2">Unit</label><input className="w-full p-3 neo-input font-semibold" value={formData.unit || ''} onChange={e => setFormData({ ...formData, unit: e.target.value })} placeholder="e.g. Bottle" /></div>
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-sm font-medium text-slate-700 mb-1">Barcode</label><input className="w-full p-2 border border-slate-200 rounded-lg font-mono" value={formData.barcode || ''} onChange={e => setFormData({ ...formData, barcode: e.target.value })} /></div>
-                                <div><label className="block text-sm font-medium text-slate-700 mb-1">Regulatory #</label><input className="w-full p-2 border border-slate-200 rounded-lg uppercase" value={formData.regulatoryNumber || ''} onChange={e => setFormData({ ...formData, regulatoryNumber: e.target.value })} /></div>
+                                <div><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-widest ml-2">Barcode</label><input className="w-full p-3 font-mono text-sm neo-input" value={formData.barcode || ''} onChange={e => setFormData({ ...formData, barcode: e.target.value })} placeholder="Scan or type" /></div>
+                                <div><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-widest ml-2">Regulatory #</label><input className="w-full p-3 uppercase text-sm neo-input" value={formData.regulatoryNumber || ''} onChange={e => setFormData({ ...formData, regulatoryNumber: e.target.value })} placeholder="Reg No." /></div>
                             </div>
 
                             {!showEditForm && (
-                                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                                    <h3 className="font-bold text-slate-700 text-sm">Initial Batch Details</h3>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Quantity</label><input type="number" className="w-full p-2 border border-slate-200 rounded-lg" value={batchData.quantity || ''} onChange={e => setBatchData({ ...batchData, quantity: Number(e.target.value) })} /></div>
+                                <div className="bg-white/50 p-4 rounded-2xl border border-white shadow-sm space-y-3 premium-neo-inset">
+                                    <h3 className="font-bold text-slate-700 text-[10px] uppercase tracking-widest flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full bg-teal-500"></div> Initial Stock Details</h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Quantity</label><input type="number" className="neo-input w-full p-2" value={batchData.quantity || ''} onChange={e => setBatchData({ ...batchData, quantity: Number(e.target.value) })} /></div>
                                         <div>
-                                            <label className="block text-xs font-bold text-slate-500 uppercase mb-1">Expiry Date</label>
-                                            {/* FIXED: added || '' to prevent uncontrolled warning */}
-                                            <input type="date" className="w-full p-2 border border-slate-200 rounded-lg" value={batchData.expiryDate || ''} onChange={e => setBatchData({ ...batchData, expiryDate: e.target.value })} />
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Expiry Date</label>
+                                            <input type="date" className="neo-input w-full p-2" value={batchData.expiryDate || ''} onChange={e => setBatchData({ ...batchData, expiryDate: e.target.value })} />
                                         </div>
-                                        <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Cost Price</label><input type="number" className="w-full p-2 border border-slate-200 rounded-lg" value={batchData.purchasePrice || ''} onChange={e => setBatchData({ ...batchData, purchasePrice: Number(e.target.value) })} /></div>
-                                        <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Selling Price</label><input type="number" className="w-full p-2 border border-slate-200 rounded-lg font-bold text-slate-800" value={batchData.unitPrice || ''} onChange={e => setBatchData({ ...batchData, unitPrice: Number(e.target.value) })} /></div>
+                                        <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Cost Price</label><input type="number" className="neo-input w-full p-2" value={batchData.purchasePrice || ''} onChange={e => setBatchData({ ...batchData, purchasePrice: Number(e.target.value) })} /></div>
+                                        <div><label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Retail Price</label><input type="number" className="neo-input w-full p-2 font-bold text-slate-800" value={batchData.unitPrice || ''} onChange={e => setBatchData({ ...batchData, unitPrice: Number(e.target.value) })} /></div>
                                     </div>
                                 </div>
                             )}
 
                             {showEditForm && selectedItem && selectedItem.batches.length > 0 && (
-                                <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 space-y-4">
+                                <div className="bg-amber-50/50 p-6 rounded-2xl border border-amber-100 shadow-sm space-y-4 premium-neo-inset">
                                     <h3 className="font-bold text-amber-800 text-sm flex items-center gap-2">
                                         <Package className="w-4 h-4" />
                                         Latest Batch Details
                                     </h3>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-xs font-bold text-amber-700 uppercase mb-1">Expiry Date</label>
+                                            <label className="block text-[10px] font-bold text-amber-700 uppercase mb-1">Expiry Date</label>
                                             <input
                                                 type="date"
-                                                className="w-full p-2 border border-amber-300 rounded-lg bg-white"
+                                                className="w-full p-2 border-none bg-white rounded-lg shadow-inner neo-input"
                                                 value={selectedItem.batches[selectedItem.batches.length - 1].expiryDate?.split('T')[0] || ''}
                                                 onChange={e => {
                                                     const updatedBatches = [...selectedItem.batches];
@@ -488,19 +504,19 @@ export const InventoryManager: React.FC<Props> = ({ state, dispatch }) => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-amber-700 uppercase mb-1">Batch Quantity</label>
+                                            <label className="block text-[10px] font-bold text-amber-700 uppercase mb-1">Batch Quantity</label>
                                             <input
                                                 type="number"
-                                                className="w-full p-2 border border-amber-300 rounded-lg bg-slate-50"
+                                                className="w-full p-2 border-none bg-slate-100 rounded-lg shadow-inner text-slate-500"
                                                 value={selectedItem.batches[selectedItem.batches.length - 1].quantity || ''}
                                                 disabled
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-amber-700 uppercase mb-1">Cost Price</label>
+                                            <label className="block text-[10px] font-bold text-amber-700 uppercase mb-1">Purchase Price</label>
                                             <input
                                                 type="number"
-                                                className="w-full p-2 border border-amber-300 rounded-lg bg-white"
+                                                className="w-full p-2 border-none bg-white rounded-lg shadow-inner neo-input"
                                                 value={selectedItem.batches[selectedItem.batches.length - 1].purchasePrice || ''}
                                                 onChange={e => {
                                                     const updatedBatches = [...selectedItem.batches];
@@ -513,10 +529,10 @@ export const InventoryManager: React.FC<Props> = ({ state, dispatch }) => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-bold text-amber-700 uppercase mb-1">Selling Price</label>
+                                            <label className="block text-[10px] font-bold text-amber-700 uppercase mb-1">Retail Price</label>
                                             <input
                                                 type="number"
-                                                className="w-full p-2 border border-amber-300 rounded-lg font-bold text-amber-900 bg-white"
+                                                className="w-full p-2 border-none bg-white rounded-lg shadow-inner font-bold text-amber-900 neo-input"
                                                 value={selectedItem.batches[selectedItem.batches.length - 1].unitPrice || ''}
                                                 onChange={e => {
                                                     const updatedBatches = [...selectedItem.batches];
@@ -528,26 +544,41 @@ export const InventoryManager: React.FC<Props> = ({ state, dispatch }) => {
                                                 }}
                                             />
                                         </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-amber-700 uppercase mb-1">Wholesale Price</label>
+                                            <input
+                                                type="number"
+                                                className="w-full p-2 border-none bg-white rounded-lg shadow-inner font-bold text-amber-900 neo-input"
+                                                value={selectedItem.batches[selectedItem.batches.length - 1].wholesalePrice || ''}
+                                                onChange={e => {
+                                                    const updatedBatches = [...selectedItem.batches];
+                                                    updatedBatches[updatedBatches.length - 1] = {
+                                                        ...updatedBatches[updatedBatches.length - 1],
+                                                        wholesalePrice: Number(e.target.value)
+                                                    };
+                                                    setSelectedItem({ ...selectedItem, batches: updatedBatches });
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                     <p className="text-xs text-amber-600 italic">💡 Editing the latest batch. Add new stock to create a new batch.</p>
                                 </div>
                             )}
 
                             <div className="grid grid-cols-2 gap-4">
-                                <div><label className="block text-sm font-medium text-slate-700 mb-1">Low Stock Alert</label><input type="number" className="w-full p-2 border border-slate-200 rounded-lg" value={formData.minLevel ?? ''} onChange={e => setFormData({ ...formData, minLevel: Number(e.target.value) })} /></div>
-                                <div className="space-y-3">
-                                    <label className="flex items-center gap-2 cursor-pointer bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                        {/* FIXED: added || false to prevent uncontrolled warning */}
+                                <div><label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 tracking-widest ml-2">Low Stock Alert</label><input type="number" className="neo-input w-full p-3 font-semibold" value={formData.minLevel ?? ''} onChange={e => setFormData({ ...formData, minLevel: Number(e.target.value) })} /></div>
+                                <div className="space-y-2">
+                                    <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl shadow-sm border border-slate-100 bg-white">
                                         <input type="checkbox" className="w-4 h-4 accent-teal-600" checked={formData.visibleToClient || false} onChange={e => setFormData({ ...formData, visibleToClient: e.target.checked })} />
-                                        <span className="text-sm font-bold text-slate-700">Show in Shop</span>
+                                        <span className="text-xs font-bold text-slate-700 uppercase tracking-widest">Show in Shop</span>
                                     </label>
-                                    {formData.visibleToClient && <div><label className="block text-xs font-bold text-slate-500 uppercase mb-1">Shop Price</label><input type="number" className="w-full p-2 border border-teal-200 rounded-lg font-bold text-teal-700 bg-teal-50/30" value={formData.clientPrice ?? ''} onChange={e => setFormData({ ...formData, clientPrice: Number(e.target.value) })} /></div>}
+                                    {formData.visibleToClient && <div><label className="block text-[10px] font-bold text-teal-600 uppercase mb-1 ml-2">Online Price Override</label><input type="number" className="neo-input w-full p-2 font-bold text-teal-700 bg-teal-50/30" value={formData.clientPrice ?? ''} onChange={e => setFormData({ ...formData, clientPrice: Number(e.target.value) })} placeholder="Same as Retail" /></div>}
                                 </div>
                             </div>
                         </div>
-                        <div className="flex justify-end gap-3 mt-6">
-                            <button onClick={() => { setShowAddForm(false); setShowEditForm(false); }} className="px-4 py-2 text-slate-600 hover:bg-slate-50 rounded-lg">Cancel</button>
-                            <button onClick={showEditForm ? handleUpdateItem : handleSaveItem} className="px-6 py-2 bg-teal-600 text-white rounded-lg font-bold hover:bg-teal-700">{showEditForm ? 'Update Item' : 'Save Item'}</button>
+                        <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-200">
+                            <button onClick={() => { setShowAddForm(false); setShowEditForm(false); }} className="px-5 py-2.5 text-slate-400 hover:text-slate-600 rounded-xl font-bold transition-colors text-xs uppercase tracking-widest">Cancel</button>
+                            <button onClick={showEditForm ? handleUpdateItem : handleSaveItem} className="px-8 py-3 bg-slate-800 text-white rounded-xl font-bold hover:shadow-lg active:scale-95 transition-all text-sm uppercase tracking-wider">{showEditForm ? 'Update Item' : 'Save Item'}</button>
                         </div>
                     </div>
                 </div>

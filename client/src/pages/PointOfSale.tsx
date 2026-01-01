@@ -28,6 +28,7 @@ export const PointOfSale: React.FC<Props> = ({ state, dispatch }) => {
     const [isWalkIn, setIsWalkIn] = useState(true);
     const [walkInName, setWalkInName] = useState('');
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD');
+    const [priceMode, setPriceMode] = useState<'RETAIL' | 'WHOLESALE'>('RETAIL');
 
     const [showPaymentSuccess, setShowPaymentSuccess] = useState<Sale | Invoice | null>(null);
     const [showHistoryDetail, setShowHistoryDetail] = useState<Sale | null>(null);
@@ -113,20 +114,24 @@ export const PointOfSale: React.FC<Props> = ({ state, dispatch }) => {
             return;
         }
 
+        const price = priceMode === 'RETAIL'
+            ? (item.clientPrice || batch.unitPrice)
+            : (item.wholesalePrice || batch.wholesalePrice || batch.unitPrice);
+
         const existing = cart.find(c => c.itemId === item.id);
         if (existing) {
             if (existing.quantity >= item.totalStock) {
                 alert("Insufficient stock.");
                 return;
             }
-            setCart(cart.map(c => c.itemId === item.id ? { ...c, quantity: c.quantity + 1, total: (c.quantity + 1) * c.unitPrice } : c));
+            setCart(cart.map(c => c.itemId === item.id ? { ...c, quantity: c.quantity + 1, total: (c.quantity + 1) * price, unitPrice: price } : c));
         } else {
             setCart([...cart, {
                 itemId: item.id,
                 itemName: item.name,
                 quantity: 1,
-                unitPrice: batch.unitPrice,
-                total: batch.unitPrice
+                unitPrice: price,
+                total: price
             }]);
             setSearchTerm(''); // Clear search after add
         }
@@ -241,6 +246,20 @@ export const PointOfSale: React.FC<Props> = ({ state, dispatch }) => {
                 <div className="p-3 border-b border-slate-100 bg-slate-50/50 space-y-3">
                     <div className="flex justify-between items-center">
                         <h2 className="font-black text-slate-700 text-base tracking-tight">POS</h2>
+                        <div className="flex bg-slate-200 rounded-lg p-1">
+                            <button
+                                onClick={() => setPriceMode('RETAIL')}
+                                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${priceMode === 'RETAIL' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Retail
+                            </button>
+                            <button
+                                onClick={() => setPriceMode('WHOLESALE')}
+                                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${priceMode === 'WHOLESALE' ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                            >
+                                Wholesale
+                            </button>
+                        </div>
                         <button
                             onClick={startCamera}
                             className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 text-white rounded-lg font-bold shadow-sm hover:bg-indigo-700 text-xs active:scale-95 transition-all"
@@ -279,14 +298,21 @@ export const PointOfSale: React.FC<Props> = ({ state, dispatch }) => {
                                                         <ShoppingCart className="w-5 h-5" />
                                                     </div>
                                                     <div>
-                                                        <h3 className="font-bold text-slate-700 text-xs md:text-sm">{item.name}</h3>
+                                                        <h3 className="font-bold text-slate-700 text-xs md:text-sm">{toTitleCase(item.name)}</h3>
                                                         <div className="flex gap-2">
                                                             <span className="text-[10px] text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded">Stock: {item.totalStock}</span>
                                                             {item.barcode && <span className="text-[10px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{item.barcode}</span>}
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <span className="text-teal-600 font-black text-sm">{formatCurrency(item.batches[0]?.unitPrice || 0, currency)}</span>
+                                                <span className="text-teal-600 font-black text-sm">
+                                                    {formatCurrency(
+                                                        priceMode === 'RETAIL'
+                                                            ? (item.clientPrice || item.batches[0]?.unitPrice || 0)
+                                                            : (item.wholesalePrice || item.batches[0]?.wholesalePrice || item.batches[0]?.unitPrice || 0)
+                                                        , currency
+                                                    )}
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
@@ -376,7 +402,7 @@ export const PointOfSale: React.FC<Props> = ({ state, dispatch }) => {
                     {cart.map((item, idx) => (
                         <div key={idx} className="flex items-center gap-2 bg-white p-2 rounded-lg border border-slate-200 shadow-sm">
                             <div className="flex-1 min-w-0">
-                                <div className="text-xs font-bold text-slate-800 truncate">{item.itemName}</div>
+                                <div className="text-xs font-bold text-slate-800 truncate">{toTitleCase(item.itemName)}</div>
                                 <div className="text-[10px] text-slate-500">{formatCurrency(item.unitPrice, currency)}</div>
                             </div>
                             <div className="flex items-center gap-1 bg-slate-100 rounded-lg px-1.5 py-0.5">
